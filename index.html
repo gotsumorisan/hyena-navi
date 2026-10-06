@@ -1,0 +1,282 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+  <meta name="theme-color" content="#0c1526" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="EV SCAN" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon-192.png" />
+  <title>EV SCAN｜パチスロ期待値リファレンス</title>
+  <style>
+    :root{
+      --bg:#07101d;--card:#0f1b2d;--card2:#132239;--line:#253855;--text:#eef4ff;--muted:#94a7c2;
+      --gold:#ffc857;--cyan:#52d8ff;--green:#4ce3a1;--red:#ff6b79;--violet:#a98bff;--orange:#ff9d4d;
+      --shadow:0 12px 35px rgba(0,0,0,.28);--radius:18px;
+    }
+    *{box-sizing:border-box} html{background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Kaku Gothic ProN","Yu Gothic",Meiryo,sans-serif}
+    body{margin:0;background:linear-gradient(180deg,#07101d 0%,#091525 32%,#08111f 100%);min-height:100vh}
+    button,input,select{font:inherit}
+    .app{max-width:820px;margin:0 auto;padding-bottom:90px}
+    .hero{padding:calc(env(safe-area-inset-top) + 24px) 18px 14px;background:radial-gradient(circle at 90% 0%,rgba(82,216,255,.13),transparent 34%),linear-gradient(180deg,#0c1728 0%,rgba(12,23,40,.2) 100%)}
+    .eyebrow{font-size:12px;letter-spacing:.16em;color:var(--cyan);font-weight:800}
+    h1{font-size:30px;line-height:1.05;margin:8px 0 8px;letter-spacing:.02em}
+    .sub{margin:0;color:var(--muted);font-size:13px;line-height:1.65}
+    .notice{margin-top:14px;border:1px solid rgba(255,200,87,.35);background:rgba(255,200,87,.08);padding:12px 13px;border-radius:14px;color:#ffe4a1;font-size:12px;line-height:1.65}
+    .toolbar{position:sticky;top:0;z-index:20;padding:10px 12px;background:rgba(7,16,29,.91);backdrop-filter:blur(18px);border-bottom:1px solid rgba(148,167,194,.12)}
+    .search{display:flex;gap:8px}.search input{width:100%;border:1px solid var(--line);background:#0a1526;color:var(--text);border-radius:13px;padding:12px 13px;outline:none}.search input:focus{border-color:#3f7893;box-shadow:0 0 0 3px rgba(82,216,255,.08)}
+    .filters{display:flex;gap:7px;overflow:auto;padding-top:9px;scrollbar-width:none}.filters::-webkit-scrollbar{display:none}
+    .chip{border:1px solid var(--line);background:#0e1a2c;color:#a9b9ce;padding:7px 11px;border-radius:999px;white-space:nowrap;font-size:12px;font-weight:700}.chip.active{background:#17304a;color:#dff7ff;border-color:#2e6285}
+    .summary{padding:14px 14px 2px}.summary-card{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:var(--card);border:1px solid var(--line);border-radius:15px;padding:10px 11px}.metric b{display:block;font-size:19px}.metric span{font-size:10px;color:var(--muted)}
+    .section-title{padding:18px 14px 8px;display:flex;justify-content:space-between;align-items:end}.section-title h2{font-size:17px;margin:0}.section-title small{font-size:10px;color:var(--muted)}
+    .list{display:grid;gap:10px;padding:0 12px}
+    .machine{background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+    .machine-head{padding:14px 14px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:11px;align-items:center;cursor:pointer}
+    .rank{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;background:#0b1728;border:1px solid #2a3d59;font-weight:900;font-size:15px;color:var(--gold)}
+    .machine-title{min-width:0}.machine-title strong{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.machine-title span{display:block;color:var(--muted);font-size:11px;margin-top:3px}
+    .grade{font-weight:900;border-radius:10px;padding:7px 9px;background:rgba(82,216,255,.1);border:1px solid rgba(82,216,255,.28);color:#bcefff;font-size:12px}.grade.gsp{background:rgba(255,200,87,.11);border-color:rgba(255,200,87,.32);color:#ffdc88}
+    .quick{display:flex;gap:6px;flex-wrap:wrap;padding:0 14px 12px}.tag{font-size:10px;border-radius:999px;padding:5px 8px;border:1px solid #29405f;color:#a8bdd7;background:#0b1728}.tag.good{border-color:rgba(76,227,161,.32);color:#8af0c1}.tag.warn{border-color:rgba(255,157,77,.35);color:#ffbd85}
+    .detail{display:none;border-top:1px solid var(--line);padding:0 14px 16px}.machine.open .detail{display:block}.block{margin-top:14px}.block h3{font-size:12px;margin:0 0 8px;color:#c9d7ea;letter-spacing:.02em}.steps{counter-reset:s;display:grid;gap:6px}.step{display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;background:#0a1525;border:1px solid #203450;border-radius:11px;padding:8px 9px;font-size:12px;line-height:1.55}.step:before{counter-increment:s;content:counter(s);width:20px;height:20px;border-radius:6px;background:#183650;color:#bcefff;display:grid;place-items:center;font-size:10px;font-weight:900;margin-top:1px}
+    .truth{display:grid;grid-template-columns:1fr 1fr;gap:7px}.truth div{border-radius:12px;padding:9px 10px;border:1px solid #243954;background:#0b1728;min-height:68px}.truth b{font-size:11px;display:block;margin-bottom:5px}.truth p{font-size:11px;color:#a8b8cd;line-height:1.55;margin:0}.truth .a b{color:var(--green)}.truth .b b{color:var(--cyan)}.truth .c b{color:var(--orange)}.truth .d b{color:var(--red)}
+    .linebox{background:linear-gradient(135deg,rgba(76,227,161,.08),rgba(82,216,255,.04));border:1px solid rgba(76,227,161,.26);border-radius:13px;padding:10px 11px;font-size:12px;line-height:1.7}.linebox b{color:#8af0c1}
+    .caution{background:rgba(255,107,121,.07);border:1px solid rgba(255,107,121,.24);border-radius:13px;padding:10px 11px;font-size:11px;line-height:1.65;color:#ffc2c8}
+    .copyrow{display:flex;gap:7px;margin-top:11px}.copybtn{flex:1;border:1px solid #2a5676;background:#12304a;color:#d9f4ff;border-radius:11px;padding:10px 11px;font-weight:800;font-size:11px}.copybtn:active{transform:scale(.98)}
+    .fact-table{width:100%;border-collapse:collapse;font-size:11px}.fact-table td{padding:7px 6px;border-bottom:1px solid #1d3049;vertical-align:top;line-height:1.5}.fact-table td:first-child{color:#aec0d7;width:42%}.ok{color:var(--green);font-weight:800}.fix{color:var(--orange);font-weight:800}.no{color:var(--red);font-weight:800}
+    .footer{padding:28px 16px 20px;color:#7186a0;font-size:10px;line-height:1.7;text-align:center}
+    .topbtn{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));width:48px;height:48px;border-radius:16px;border:1px solid #2b4b69;background:rgba(14,31,51,.92);color:#dff7ff;font-weight:900;box-shadow:var(--shadow)}
+    .hidden{display:none!important}
+    @media (min-width:700px){.list{grid-template-columns:1fr 1fr}.machine.open{grid-column:1/-1}.hero{padding-left:22px;padding-right:22px}.toolbar{border-radius:0 0 16px 16px}.truth{grid-template-columns:repeat(4,1fr)}}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="eyebrow">PACHISLOT EV REFERENCE</div>
+    <h1>EV SCAN</h1>
+    <p class="sub">空き台を見て「何を確認するか」だけに集中する、期待値狙い10機種のスマホ用リファレンス。</p>
+    <div class="notice"><b>重要：</b> 相談ライン ≠ 着席ライン。実戦では最新解析・交換条件・残り時間・残り軍資金を再確認し、<b>推定期待値 +2,000円程度以上</b>をA候補とする。1日の総投資上限は30,000円。</div>
+  </header>
+
+  <div class="toolbar">
+    <div class="search"><input id="q" type="search" placeholder="機種・キーワード検索（例：ヘルメット / 女神 / あべし）" /></div>
+    <div class="filters" id="filters">
+      <button class="chip active" data-filter="all">すべて</button>
+      <button class="chip" data-filter="top">最優先4</button>
+      <button class="chip" data-filter="easy">判定しやすい</button>
+      <button class="chip" data-filter="history">履歴が重要</button>
+      <button class="chip" data-filter="complex">複雑</button>
+    </div>
+  </div>
+
+  <section class="summary">
+    <div class="summary-card">
+      <div class="metric"><b>10</b><span>監査済み機種</span></div>
+      <div class="metric"><b>+¥2k</b><span>A候補の基本線</span></div>
+      <div class="metric"><b>¥30k</b><span>1日投資上限</span></div>
+    </div>
+  </section>
+
+  <div class="section-title"><h2>ファクトチェック後ランキング</h2><small>空き台からの実用性重視</small></div>
+  <main id="list" class="list"></main>
+  <footer class="footer">基準日：2026-10-06<br>本資料は店内での一次確認・相談補助用。実戦当日は最新解析を再確認し、推測で有利条件を補完しない。</footer>
+</div>
+<button class="topbtn" aria-label="ページ上部へ" onclick="scrollTo({top:0,behavior:'smooth'})">↑</button>
+
+<script>
+const machines = [
+{
+ rank:1, grade:'S+', top:true, easy:true, name:'L 東京喰種', short:'東京喰種', tags:['CZ間','AT間','メニュー確認'],
+ quick:['液晶右下のCZ間G','メニューのAT間実G','CZ/AT履歴','x49Gなら月山招待状を意識','残っている示唆'],
+ direct:'CZ間G（液晶右下）／AT間実G（メニュー）を直接確認可能。主要2天井が空き台から取れる。',
+ restore:'CZ/AT履歴からCZスルー状況などを補助復元。',
+ infer:'AT駆け抜け・リセットは履歴や状況が揃った時だけ。',
+ impossible:'有馬貴将ジャッジメント失敗後は、目撃や確実な履歴がなければ決め打ちしない。',
+ line:'目安：CZ間は+1,000円級が等価300G～／5.6枚350G～、AT間は等価550G～／5.6枚700G～。本プロジェクトではさらに+2,000円基準へ引き上げて最終判定。',
+ quit:'AT後は引き戻し・アイキャッチ確認。有馬ジャッジ失敗を確認した場合は100G+αまで。',
+ caution:'液晶GとAT間実Gは別物。スイカ加算はCZ間側に影響する。',
+ input:'東京喰種 液晶___G AT間___G 履歴___',
+ facts:[['CZ間600G+α','OK'],['AT間1200G+α','OK'],['CZ間とAT間は同じ','NG→別カウンター'],['1G確認','原則不要（x49G付近は例外）']],
+ filters:['top','easy']
+},
+{
+ rank:2, grade:'S+', top:true, easy:true, name:'スマスロ モンキーターンV', short:'モンキーV', tags:['ヘルメット','EX','周期'],
+ quick:['現在G','現在周期','ヘルメットのロゴ','ヘルメットの人物','EXアイテム点灯','液晶GとデータGの差'],
+ direct:'G数・周期・ヘルメット・EXアイテムは空き台から確認しやすい。',
+ restore:'液晶GとデータGの約10G差は青島VS波多野敗北後の短縮状態を疑う材料。',
+ infer:'約10G差＝100%短縮確定とはしない。データ機仕様も確認。',
+ impossible:'消えた舟券・アイキャッチ・過去のセリフ等は復元しない。',
+ line:'通常G数は+1,000円級で等価350G～／5.6枚450G～。短縮確定はかなり浅くから価値あり。最終Aは+2,000円基準で再判定。',
+ quit:'AT後はヘルメット・EX・即優出を確認。AT後1周期目は価値あり。',
+ caution:'「ロゴあり」はB以上確定ではない。ロゴ＋キラキラ、Vロゴ、ライバルヘルメット、EX点灯を区別。',
+ input:'モンキー ___G ___周期 ヘルメット___ EX___',
+ facts:[['通常天井795G+α','OK'],['短縮495G+α/4周期','OK'],['3周期なら無条件着席','NG'],['波多野ヘルメット＝ライバル否定','NG']],
+ filters:['top','easy']
+},
+{
+ rank:3, grade:'S', top:true, easy:true, name:'L パチスロ からくりサーカス2', short:'からくり2', tags:['台データ','女神スルー','3種G'],
+ quick:['液晶G','台データを開く','女神スルー','女神間実G','AT間実G','残っているモード示唆'],
+ direct:'液晶Gと台内「台データ」のCZ/AT履歴を確認可能。',
+ restore:'女神間実G・AT間実G・女神スルーを台内履歴から復元しやすい。',
+ infer:'複雑な履歴で正確に追えない場合は「不明」。無理に足し算しない。',
+ impossible:'前任者しか見ていないPUSHパネルや終了画面は復元しない。',
+ line:'保守運用：通常液晶1000G～／女神間700G～／AT間1800G～（5.6枚現金は2000G～）。女神3スルーは女神間500G級から候補、4スルーは非常に強い。',
+ quit:'通常AT後は100Gゾーン確認。運命の一劇失敗後は128実Gの引き戻しを確認。',
+ caution:'液晶G・女神間G・AT間Gは全部別。幕間失敗は女神間リセットでも女神スルー加算でもない。',
+ input:'からくり2 液晶___ 女神間___ ___スルー AT間___',
+ facts:[['女神間890実G','OK'],['AT間2500実G','OK'],['女神4スルー後5回目AT','OK'],['幕間失敗で女神間リセット','NG']],
+ filters:['top','easy','history','complex']
+},
+{
+ rank:4, grade:'A+', top:true, name:'スマスロ 甲鉄城のカバネリ 海門決戦', short:'海門決戦', tags:['周期','背景','皮膜'],
+ quick:['ST間G','現在周期','サブ液晶背景','皮膜Lv','前回ST履歴','黒煙り示唆'],
+ direct:'G数・周期・皮膜Lv・サブ液晶背景を確認可能。海門城背景は強い確定材料。',
+ restore:'ST駆け抜け・景之ST後が確実に分かれば596G/最大4周期短縮。',
+ infer:'桜背景は4周期以内EPの強い示唆だが、596G短縮まで確定とはしない。',
+ impossible:'黒煙り現在ptの完全復元は不可。40/45pt以上示唆など、見えている情報のみ使用。',
+ line:'通常状態は+1,000円級で等価400G～／5.6枚550G～。短縮確定は大幅に価値上昇。最終Aは+2,000円基準。',
+ quit:'短縮状態は次回STまで評価。通常ST後のゾーンフォローは期待値条件と分けて扱う。',
+ caution:'桜背景＝596G短縮確定、ではない。駿城ボーナス失敗ではST間G・周期を引き継ぐ。',
+ input:'海門 ___G ___周期 背景___ 皮膜Lv___',
+ facts:[['通常996G/6周期','OK'],['短縮596G/4周期','OK'],['桜＝596G短縮','NG'],['駿城失敗で天井リセット','NG']],
+ filters:['top']
+},
+{
+ rank:5, grade:'A+', easy:true, name:'スマスロ 北斗の拳 転生の章2', short:'転生2', tags:['あべし','赤表示','ゾーン'],
+ quick:['現在あべし','あべし文字/台座色','193～256との距離','宝玉・伝承示唆','リセット根拠'],
+ direct:'現在あべしを液晶で直接確認。赤あべし等は天撃失敗後の強い手掛かり。',
+ restore:'日中は主要判断が現画面だけでかなり完結。',
+ infer:'朝一は内部あべしと表示がズレる可能性があるため、0表示を内部0と決めない。',
+ impossible:'内部モードを表示だけで完全特定しない。',
+ line:'+2,000円目安は通常で等価900あべし前後、5.6枚975あべし前後を有力ラインとして扱う。193～256は短区間ゾーン。',
+ quit:'天撃失敗後は天国扱いで追う。その他は状態・ゾーンを確認して判断。',
+ caution:'朝一だけは別物。リセットを推測だけで加点しない。',
+ input:'転生2 ___あべし 色___ 台座___',
+ facts:[['最大1536あべし','OK'],['リセット1280あべし','OK'],['赤あべし後即ヤメ','NG'],['朝一0＝内部0','NG']],
+ filters:['easy']
+},
+{
+ rank:6, grade:'A', name:'L 戦国乙女5', short:'戦国乙女5', tags:['AT間実G','液晶G','周期'],
+ quick:['メニューのAT間実G','液晶の周期内G','現在周期','現在ステージ','周期カウンタの光'],
+ direct:'AT間実G・液晶G・周期・ステージを確認可能。',
+ restore:'毛利邸（夜）や封印の塔は周期到達の近さを示す。',
+ infer:'リセット恩恵は強いが、着席前の確定判別は弱い。',
+ impossible:'過去のアイキャッチや光示唆の累積は復元しない。',
+ line:'通常の+2,000円候補は等価600～650G前後。リセット確定なら350G前後が候補。通常は5周期目～、リセット確定なら3周期目～を補助。',
+ quit:'AT後1周期目は引き戻し価値あり。示唆があれば継続評価。',
+ caution:'AT間実Gと液晶Gは別物。封印の塔＝AT確定ではなく、本前兆期待度が高い。',
+ input:'乙女5 AT間___G 液晶___G ___周期 ステージ___',
+ facts:[['通常999G','OK'],['リセット650G','OK'],['液晶G＝AT間実G','NG'],['封印の塔＝AT確定','NG']],
+ filters:['easy']
+},
+{
+ rank:7, grade:'A-', easy:true, name:'スマスロ マギアレコード', short:'マギレコ', tags:['pt','穢れ','ゾーン'],
+ quick:['液晶右の現在pt','200/400/600ptとの距離','ボーナス/AT履歴','現在出ている穢れ示唆','アイキャッチ'],
+ direct:'現在ptが液晶右側に表示。ポイント狙いは非常に扱いやすい。',
+ restore:'履歴は穢れ蓄積の補助材料になるが、現在穢れptを正確に計算しない。',
+ infer:'単発や駆け抜けが多い＝穢れ期待UP程度。スルー天井として扱わない。',
+ impossible:'穢れ現在値の完全復元、消えた穢れ示唆・アイキャッチの復元。',
+ line:'+2,000円級の概算は通常で等価675pt前後、5.6枚750pt前後を目安。リセット確定なら300G前後が候補。',
+ quit:'みたまボーナス後は高確フォロー。強い穢れ示唆・規定pt直前なら続行評価。',
+ caution:'pt狙いは簡単、穢れ狙いは不確実。履歴だけで「穢れ○pt」と作らない。',
+ input:'マギレコ ___pt 履歴___ 穢れ示唆___',
+ facts:[['通常950pt','OK'],['リセット600～699pt+α','OK'],['穢れ100ptでMAX','OK'],['履歴から穢れ完全計算','NG']],
+ filters:['easy']
+},
+{
+ rank:8, grade:'A-', name:'革命機ヴァルヴレイヴ2', short:'VVV2', tags:['ボーナス間','周期','決戦スルー'],
+ quick:['MENUのボーナス/AT間G','周期数','現在pt','マギウスマーク','周期短縮表示','CZ間履歴','決戦スルー','引き戻しランプ'],
+ direct:'ボーナス/AT間G・周期・pt・引き戻し状態は比較的確認しやすい。',
+ restore:'CZ間や決戦BONUS連続スルーはデータカウンター仕様次第。',
+ infer:'周期短縮は見える場合があるが、内部モードやリセット原因まで断定しない。',
+ impossible:'朝一の見た目だけでリセット確定。',
+ line:'通常+2,000円級の目安は等価900G～、5.6枚1000G～。リセット確定なら等価500G～／5.6枚600G～が候補。',
+ quit:'AT後の66G引き戻しは価値高め。ボーナス後は状況により即ヤメも選択肢。',
+ caution:'決戦3スルー＝次回革命BONUS濃厚であり、次回AT確定ではない。',
+ input:'VVV2 AT間___G ___周期 ___pt 決戦___スルー',
+ facts:[['通常1500G','OK'],['CZ間999G','OK'],['決戦3スルー＝次回AT','NG'],['66G引き戻し表示','OK']],
+ filters:['history','complex']
+},
+{
+ rank:9, grade:'B+', name:'スマスロ リコリス・リコイル', short:'リコリコ', tags:['短縮天井','上位AT後','駆け抜け'],
+ quick:['現在G','短縮天井表示','上位AT後UI/下パネル','スタンプ','データ履歴から駆け抜け','CZ間履歴'],
+ direct:'短縮天井表示、上位AT終了後の専用UI/下パネル明滅は空き台から使える。',
+ restore:'AT駆け抜けはデータ機仕様が合えば高確度推測可能。',
+ infer:'RB後BBなし等は「駆け抜け確定」とはしない。',
+ impossible:'上位CZ失敗後250G天井は、基本的に目撃しないと復元困難。',
+ line:'通常400G～は解析上強め。上位CZ失敗後0G～も理論上有利だが、状態確定できる時だけ。最終Aは+2,000円基準で評価。',
+ quit:'上位AT後は100G+α引き戻し確認。短縮表示があればその天井まで評価。',
+ caution:'最強クラスの特殊状態を空き台から拾いにくいのが最大の弱点。',
+ input:'リコリコ ___G 短縮表示___ 上位AT後___ 履歴___',
+ facts:[['通常AT間850G','OK'],['上位CZ失敗後250G','OK'],['上位CZ失敗を空き台で確定','NG'],['1G確認','原則不要']],
+ filters:['history']
+},
+{
+ rank:10, grade:'B+', name:'Lパチスロ 炎炎ノ消防隊2', short:'炎炎2', tags:['ボーナス間','ループ間','伝導者スルー'],
+ quick:['ボーナス間G','伝導者スルー','最後の炎炎ループからの累計G','88G等ゾーン','リセット根拠'],
+ direct:'ボーナス間Gは確認しやすい。',
+ restore:'伝導者スルー・炎炎ループ間はデータカウンター履歴から復元できる場合あり。',
+ infer:'データ機仕様が店ごとに違うため、信号の意味が不明なら推測しない。',
+ impossible:'過去の終了画面・通常E示唆などは消えた後に復元不可。',
+ line:'通常は+1,000円級が等価500G～／5.6枚600G～。リセット確定の+2,000円級は等価450G～／5.6枚500G～が候補。',
+ quit:'REG後は伝導者の罠終了まで。炎炎激闘後は潜伏確認。88Gが近ければゾーン評価。',
+ caution:'ボーナス間・炎炎ループ間・伝導者スルーの3系統を混同しない。',
+ input:'炎炎2 ボーナス間___G 伝導者___スルー ループ間___G',
+ facts:[['ボーナス間850G','OK'],['ループ間2000G','OK'],['5スルーで即SP','NG→次回ボーナス時'],['REG後即ヤメ','NG']],
+ filters:['history','complex']
+}
+];
+
+const list=document.getElementById('list');
+function esc(s){return String(s).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function factClass(v){ if(v.startsWith('OK'))return 'ok'; if(v.startsWith('NG'))return 'no'; return 'fix'; }
+function render(){
+ const q=document.getElementById('q').value.trim().toLowerCase();
+ const active=document.querySelector('.chip.active')?.dataset.filter||'all';
+ list.innerHTML='';
+ machines.filter(m=>{
+   const text=JSON.stringify(m).toLowerCase();
+   const qok=!q||text.includes(q);
+   const fok=active==='all'||m.filters.includes(active);
+   return qok&&fok;
+ }).forEach(m=>{
+   const el=document.createElement('article');el.className='machine';
+   const gradeClass=m.grade==='S+'?'grade gsp':'grade';
+   el.innerHTML=`
+    <div class="machine-head" role="button" tabindex="0" aria-expanded="false">
+      <div class="rank">${m.rank}</div>
+      <div class="machine-title"><strong>${esc(m.name)}</strong><span>${esc(m.short)}｜空き台実用性ランキング</span></div>
+      <div class="${gradeClass}">${esc(m.grade)}</div>
+    </div>
+    <div class="quick">${m.tags.map((t,i)=>`<span class="tag ${i===0?'good':''}">${esc(t)}</span>`).join('')}</div>
+    <div class="detail">
+      <div class="block"><h3>巡回時に見る順番</h3><div class="steps">${m.quick.map(x=>`<div class="step">${esc(x)}</div>`).join('')}</div></div>
+      <div class="block"><h3>空き台から取れる情報</h3><div class="truth">
+        <div class="a"><b>A｜直接確認</b><p>${esc(m.direct)}</p></div>
+        <div class="b"><b>B｜履歴で復元</b><p>${esc(m.restore)}</p></div>
+        <div class="c"><b>C｜条件付き推測</b><p>${esc(m.infer)}</p></div>
+        <div class="d"><b>D｜復元しない</b><p>${esc(m.impossible)}</p></div>
+      </div></div>
+      <div class="block"><h3>プロジェクトA候補ライン</h3><div class="linebox"><b>目安：</b> ${esc(m.line)}</div></div>
+      <div class="block"><h3>やめ時・状態変化</h3><div class="linebox">${esc(m.quit)}</div></div>
+      <div class="block"><h3>誤判定防止</h3><div class="caution">${esc(m.caution)}</div></div>
+      <div class="block"><h3>ファクトチェック</h3><table class="fact-table">${m.facts.map(([a,b])=>`<tr><td>${esc(a)}</td><td class="${factClass(b)}">${esc(b)}</td></tr>`).join('')}</table></div>
+      <div class="copyrow"><button class="copybtn" data-copy="${esc(m.input)}">相談文をコピー</button><button class="copybtn" data-copy="${esc(m.short)} 不明">最小入力をコピー</button></div>
+    </div>`;
+   const head=el.querySelector('.machine-head');
+   function toggle(){el.classList.toggle('open');head.setAttribute('aria-expanded',el.classList.contains('open'))}
+   head.addEventListener('click',toggle);head.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle()}});
+   list.appendChild(el);
+ });
+ document.querySelectorAll('[data-copy]').forEach(btn=>btn.addEventListener('click',async()=>{
+   try{await navigator.clipboard.writeText(btn.dataset.copy);const old=btn.textContent;btn.textContent='コピーしました';setTimeout(()=>btn.textContent=old,1200)}catch{prompt('コピーしてください',btn.dataset.copy)}
+ }));
+}
+document.getElementById('q').addEventListener('input',render);
+document.getElementById('filters').addEventListener('click',e=>{if(!e.target.matches('.chip'))return;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));e.target.classList.add('active');render()});
+render();
+if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}))}
+</script>
+</body>
+</html>
